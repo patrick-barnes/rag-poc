@@ -1,22 +1,29 @@
 # RAG PoC
 
-## Overview
+## Overview and Demo
 
-This repository is a small Retrieval-Augmented Generation (RAG) proof-of-concept.
+This repository is a small Retrieval-Augmented Generation (RAG)
+proof-of-concept.
 
-It includes:
+This demonstrates how a RAG app can answer questions
+using extra information that *you* provide, that is not
+commonly known by public apps like ChatGPT or Gemini.
 
-- FastAPI backend
-- Streamlit frontend
-- OpenAI for embeddings and completion (via environment variable)
-- Postgres + pgvector for vector storage
-- Docker Compose for local development and easy EC2 deployment
+For example, suppose you have a private document containing
+lore about a fictional character called Zorvath.
+That document might look like:
 
-This README focuses on how to build, initialize the database, and run tests locally and in containers.
+```
+Zorvath the Perpetually Confused is a semi-corporeal librarian...
+He was sentenced by the Interdimensional Council
+to wander realities cataloging paradoxes that may or may not exist...
+Zorvath cannot remember his own name without consulting a
+laminated card he keeps losing...
+```
 
+Full lore text: [Source](tests/data/lore-data.txt)
 
-
-## App demo
+This you could use this app to ask any questions about it.
 
 1. Tap "Browse files", select `tests/data/lore-data.txt`, then tap "Ingest Document".
 
@@ -29,10 +36,6 @@ This README focuses on how to build, initialize the database, and run tests loca
 3. Review the answer and sources.
 
 ![Step 3: Review answer and sources](docs/images/step-3-review-answer-and-sources.png)
-
-This demonstrates how a RAG app can answer questions
-using extra information that you provide, that is not
-commonly available or known by public apps like ChatGPT or Gemini.
 
 
 
@@ -113,6 +116,18 @@ You can now run the App Demo (at the top of this document) yourself!
 
 
 ## Appendix: Developer notes on how it works
+
+### Tech stack
+
+It includes:
+
+- FastAPI backend
+- Streamlit frontend
+- OpenAI for embeddings and completion (via environment variable)
+- Postgres + pgvector for vector storage
+- Docker Compose for local development and easy EC2 deployment
+
+### Backend API implementation
 
 When the /ingest API is called, it does this:
 
