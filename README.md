@@ -12,28 +12,40 @@ It includes:
 
 This README focuses on how to build, initialize the database, and run tests locally and in containers.
 
-Prerequisites
- - Docker Desktop (or Docker Engine + Compose v2)
- - git, and a shell (Bash on Linux is used in examples)
+
+
+## Prerequisites
+
+ - Linux (or WSL, e.g. `\\wsl$\Ubuntu\home\$USER\...`)
+ - Docker
+ - git
  - An OpenAI API key (set via `OPENAI_API_KEY` in your `.env`)
 
-Quick start (Docker, recommended)
+
+
+## One-time setup
 
 1) Copy the example environment and fill it in:
 
-```bash
-cp .env.example .env
-# Edit .env and set OPENAI_API_KEY and any DB credentials you want
-```
+`cp .env.example .env`
+
+Edit `.env` and set OPENAI_API_KEY and any DB credentials you want
+
+
+
+## Build and run locally
+
+1) Set env vars:
+
+`source ./set-env.sh`
 
 2) Build and start the stack:
 
-```bash
-docker compose up -d --build
-```
+`docker compose up -d --build`
 
-3) Initialize the database (create the pgvector extension and the documents table).
-	Run these commands after the `db` container is running.
+3) First time only: Initialize the database (create pgvector extension and  documents table)
+
+Run these commands after the `db` container is running.
 
 ```bash
 docker compose exec db psql -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE EXTENSION IF NOT EXISTS vector;"
@@ -42,14 +54,13 @@ docker compose exec db psql -U $POSTGRES_USER -d $POSTGRES_DB -c 'CREATE TABLE I
 
 4) Smoke test the backend and frontend
 
-```bash
-# backend health
-curl http://localhost:8000/health
+Backend: check health: `curl http://localhost:8000/health`
 
-# open Streamlit in a browser at http://localhost:8501
-```
+Frontend: open in browser: `http://localhost:8501`
 
-Running tests
+
+
+## Running tests
 
 Option A — run tests inside a container (matches CI)
 
@@ -69,15 +80,7 @@ pip install -r backend/requirements.txt
 pytest -q tests/backend -vv
 ```
 
-Notes and troubleshooting
-- If the `db` container cannot create the `vector` extension, ensure you are using the bundled image (the Compose file uses a pgvector-enabled image). If you change the image, you must install the `vector` extension in that Postgres build.
-- If Docker CLI reports it cannot connect, start Docker Desktop or ensure the Docker daemon is running.
-- The `.env.example` file lists the environment variables used by the services; copy it to `.env` and keep secrets out of source control.
-- For production or EC2: see `infra/README-ec2.md` for minimal deployment notes; use a proper reverse proxy and TLS in production.
 
-Development notes
-- The backend code is located under `backend/app/`. The FastAPI app factory is `backend/app/main.py`.
-- The frontend Streamlit app is `frontend/streamlit_app.py`.
-- Tests live under `tests/backend/` and are written to use FastAPI dependency overrides where appropriate.
-
-If you'd like, I can now restore the fuller backend implementations (OpenAI wrapper, vector store, ingest/query logic) and convert the OpenAI client to a proper async implementation — tell me which to prioritize next.
+## Knowns bugs and limitations
+- BUG: after recently refactoring code, `PostgresSyntaxError: syntax error at or near ":"`
+- LIMITATION: currently, user must manually load the lore data; demo should pre-load this data

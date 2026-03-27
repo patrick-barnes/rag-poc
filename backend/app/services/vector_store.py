@@ -29,8 +29,8 @@ class VectorStore:
         emb_text = '[' + ','.join(map(str, embedding)) + ']'
         async with self._engine.connect() as conn:
             result = await conn.execute(text(
-                "SELECT id, content, metadata FROM documents ORDER BY embedding <=> :emb::vector LIMIT :k"
-            ), {"emb": emb_text, "k": top_k})
+                f"SELECT id, content, metadata FROM documents ORDER BY embedding <=> '{emb_text}'::vector LIMIT :k"
+            ), {"k": top_k})
             rows = result.fetchall()
             out = []
             for r in rows:
