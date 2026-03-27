@@ -1,5 +1,7 @@
 # RAG PoC
 
+## Overview
+
 This repository is a small Retrieval-Augmented Generation (RAG) proof-of-concept.
 
 It includes:
@@ -14,7 +16,29 @@ This README focuses on how to build, initialize the database, and run tests loca
 
 
 
-## Prerequisites
+## App demo
+
+1. Tap "Browse files", select `tests/data/lore-data.txt`, then tap "Ingest Document".
+
+![Step 1: Ingest Document](docs/images/step-1-ingest-document.png)
+
+2. Enter a question like "Why is Zorvath always writing things down?" and tap "Ask".
+
+![Step 2: Ask Question](docs/images/step-2-ask-question.png)
+
+3. Review the answer and sources.
+
+![Step 3: Review answer and sources](docs/images/step-3-review-answer-and-sources.png)
+
+This demonstrates how a RAG app can answer questions
+using extra information that you provide, that is not
+commonly available or known by public apps like ChatGPT or Gemini.
+
+
+
+## Running this application locally
+
+### Prerequisites
 
  - Linux (or WSL, e.g. `\\wsl$\Ubuntu\home\$USER\...`)
  - Docker
@@ -23,7 +47,7 @@ This README focuses on how to build, initialize the database, and run tests loca
 
 
 
-## One-time setup
+### One-time setup
 
 1) Copy the example environment and fill it in:
 
@@ -33,7 +57,7 @@ Edit `.env` and set OPENAI_API_KEY and any DB credentials you want
 
 
 
-## Build and run locally
+### Build and run locally
 
 1) Set env vars:
 
@@ -60,7 +84,7 @@ Frontend: open in browser: `http://localhost:8501`
 
 
 
-## Running tests
+### Running tests
 
 Option A — run tests inside a container (matches CI)
 
@@ -81,23 +105,29 @@ pytest -q tests/backend -vv
 ```
 
 
-## Knowns bugs and limitations
-- BUG: after recently refactoring code, `PostgresSyntaxError: syntax error at or near ":"`
-- LIMITATION: currently, user must manually load the lore data; demo should pre-load this data
+
+### Using the app
+
+You can now run the App Demo (at the top of this document) yourself!
 
 
 
-## Developer notes
+## Appendix: Developer notes on how it works
+
+When the /ingest API is called, it does this:
+
+1. calls `emb = openai.embed_texts([text])` to translate to embedding format.
+2. calls `vector_store.upsert(doc_id, text, emb[0], metadata)` to store in vector db.
 
 When /query API is called, it does this:
 
-1. calls `q_emb = openai.embed_texts(question)` to translate question to embedded format
+1. calls `q_emb = openai.embed_texts([question])` to translate question to embedding format
 2. calls `rows = vector_store.query(q_emb, top_k)` to query vector db for relevant data
 3. creates a prompt like:
 ```
 Use the following context to answer the question:
-Context: (the information gathered from step 2, in embedded format)
-Question: (the question from step 1, in enbedded format)
+Context: (the information gathered from step 2, in embedding format)
+Question: (the question from step 1, in enbedding format)
 Answer:
 ```
 4. calls `openai.generate_answer(prompt)`
