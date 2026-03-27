@@ -84,3 +84,20 @@ pytest -q tests/backend -vv
 ## Knowns bugs and limitations
 - BUG: after recently refactoring code, `PostgresSyntaxError: syntax error at or near ":"`
 - LIMITATION: currently, user must manually load the lore data; demo should pre-load this data
+
+
+
+## Developer notes
+
+When /query API is called, it does this:
+
+1. calls `q_emb = openai.embed_texts(question)` to translate question to embedded format
+2. calls `rows = vector_store.query(q_emb, top_k)` to query vector db for relevant data
+3. creates a prompt like:
+```
+Use the following context to answer the question:
+Context: (the information gathered from step 2, in embedded format)
+Question: (the question from step 1, in enbedded format)
+Answer:
+```
+4. calls `openai.generate_answer(prompt)`
